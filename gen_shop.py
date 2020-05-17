@@ -81,10 +81,10 @@ class shop(object):
         }
 
     def only_buy(self):
-        for i in range(1):
+        for i in range(2):
             item = input("请输入第{}个商品文本：\n".format(i))
             if not is_valid_item_id(item):
-                item = input("请输入第{}个商品文本：\n")
+                item = input("请输入第{}个商品文本：\n".format(i))
             strings = item.split(":")
             item_id = strings[0] + ":" + strings[1]
             item_meta = int(strings[2])
@@ -106,16 +106,16 @@ class shop(object):
                 "&6价格：&d{}&a{}&d一个".format(item_price, self.currency_alias)
             ]
             primary_click_once_commands = """cost: {}:{}:{};
-                                             console: give %player_name% {} 1 {};
-                                             sound: minecraft:block.note.hat""".format(self.eco_plugin,
+                       console: give %player_name% {} 1 {};
+                       sound: minecraft:block.note.hat""".format(self.eco_plugin,
                                                                                        self.currency,
                                                                                        item_price,
                                                                                        item_id,
                                                                                        item_meta)
 
             primary_shift_click_commands = """cost: {}:{}:{};
-                                              console: give %player_name% {} {} {};
-                                              sound: minecraft:block.note.hat""".format(self.eco_plugin,
+                       console: give %player_name% {} {} {};
+                       sound: minecraft:block.note.hat""".format(self.eco_plugin,
                                                                                         self.currency,
                                                                                         item_price * int(
                                                                                             self.item_extra_traction_number),
@@ -123,48 +123,95 @@ class shop(object):
                                                                                         self.item_extra_traction_number,
                                                                                         item_meta)
 
-            data = [
+            buy_data = [
                 {
                     "Item": {
                         "ItemType": item_id,
                         "UnsafeDamage": int(item_meta),
                         "Count": 1,
                         "ItemLore": item_lore,
-                        "PrimaryAction": {
-                            "Command": primary_click_once_commands,
-                            "CommandAfter": "console: vc update {} %player%".format(self.file_name),
-                            "KeepInventoryOpen": True
-                        },
-                        "PrimaryShiftAction": {
-                            "Command": primary_shift_click_commands,
-                            "CommandAfter": "console: vc update {} %player%".format(self.file_name),
-                            "KeepInventoryOpen": True
-                        },
-                        "Requirements": "%economy_balance_{}% >= {}".format(self.currency, item_price * int(
-                            self.item_extra_traction_number))
                     },
-                    "Item_1": {
+                    "PrimaryAction": {
+                        "Command": primary_click_once_commands,
+                        "CommandAfter": "console: vc update {} %player%".format(self.file_name),
+                        "KeepInventoryOpen": True
+                    },
+                    "PrimaryShiftAction": {
+                        "Command": primary_shift_click_commands,
+                        "CommandAfter": "console: vc update {} %player%".format(self.file_name),
+                        "KeepInventoryOpen": True
+                    },
+                    "Requirements": "%economy_balance_{}% >= {}".format(self.currency, item_price * int(
+                        self.item_extra_traction_number))
+                },
+                {
+                    "Item": {
                         "ItemType": item_id,
                         "UnsafeDamage": int(item_meta),
                         "Count": 1,
-                        "ItemLore": item_lore_1,
-                        "PrimaryAction": {
-                            "Command": primary_click_once_commands,
-                            "CommandAfter": "console: vc update {} %player%".format(self.file_name),
-                            "KeepInventoryOpen": True
-                        },
-                        "Requirements": "%economy_balance_{}% >= {}".format(self.currency, item_price)
+                        "ItemLore": item_lore_1
                     },
-                    "Item_2": {
+                    "PrimaryAction": {
+                        "Command": primary_click_once_commands,
+                        "CommandAfter": "console: vc update {} %player%".format(self.file_name),
+                        "KeepInventoryOpen": True
+                    },
+                    "Requirements": "%economy_balance_{}% >= {}".format(self.currency, item_price)
+                },
+                {
+                    "Item": {
                         "ItemType": item_id,
                         "UnsafeDamage": int(item_meta),
                         "Count": 1,
-                        "ItemLore": item_lore_1,
-                        "Requirements": "%economy_balance_{}% < {}".format(self.currency, item_price)
-                    }
+                        "ItemLore": item_lore_2
+                    },
+                    "Requirements": "%economy_balance_{}% < {}".format(self.currency, item_price)
                 }
             ]
-            self.data['virtualchest']['Slot{}'.format(i)] = data
+
+            item_sell_lore = [
+                "&a&l收购",
+                "&b左键点击一次出售 &e1 &b个",
+                "&b左键Shift点击一次出售 &e{} &b个".format(self.item_extra_traction_number),
+                "&6价格：&d{}&a{}&d一个".format(item_price, self.currency_alias)
+            ]
+            sell_primary_click_once_commands = """cost-item:1;
+                       cost: {}:{}:-{};
+                       sound: minecraft:block.note.hat""".format(self.eco_plugin, self.currency, item_price)
+
+            sell_primary_shift_click_commands = """cost-item:{};
+                       cost: {}:{}:-{};
+                       sound: minecraft:block.note.hat""".format(self.item_extra_traction_number,
+                                                      self.eco_plugin,
+                                                      self.currency,
+                                                      item_price * int(self.item_extra_traction_number))
+            sell_data = [
+                {
+                    "Item": {
+                        "ItemType": item_id,
+                        "UnsafeDamage": int(item_meta),
+                        "Count": 1,
+                        "ItemLore": item_sell_lore
+                    },
+                    "PrimaryAction": {
+                        "Command": sell_primary_click_once_commands,
+                        "CommandAfter": "console: vc update {} %player%".format(self.file_name),
+                        "KeepInventoryOpen": True
+                    },
+                    "PrimaryShiftAction": {
+                        "Command": sell_primary_shift_click_commands,
+                        "CommandAfter": "console: vc update {} %player%".format(self.file_name),
+                        "KeepInventoryOpen": True
+                    },
+                }
+            ]
+
+            if int(self.shop_mode) == 1:
+                self.data['virtualchest']['Slot{}'.format(i)] = buy_data
+            elif int(self.shop_mode) == 2:
+                self.data['virtualchest']['Slot{}'.format(i)] = sell_data
+
+
 
     def save(self):
         if not path.exists(path.join(os.getcwd(), "shops")):
