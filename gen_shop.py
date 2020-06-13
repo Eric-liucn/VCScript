@@ -60,6 +60,8 @@ class shop(object):
 
         if int(self.shop_mode) == 3:
             self.different_price = bool(input("同时出售/收购时价格是否不同？\n"))
+        else:
+            self.different_price = 0
 
         self.data = {
             'virtualchest': {

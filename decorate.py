@@ -8,7 +8,7 @@ class decorate(object):
     def __init__(self):
         self.color_1 = 1
         self.color_2 = 2
-        self.slot_list = input("(split by ',')Slots:\n ").split(',')
+        self.slot_list = input("需要玻璃装饰充填的Slot序号(英文','分隔):\n ").split(',')
         self.conf_data = {}
 
     def gen(self):
